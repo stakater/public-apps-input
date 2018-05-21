@@ -4,21 +4,21 @@ release:
   version: 0.0.4
 configuration:
   jamadar:
-  namespace: default
-  labels:
-    provider: stakater
-    group: com.stakater.platform
-    version: 0.0.3
-  image:
-    name: stakater/jamadar
-    tag: "0.0.3"
-    pullPolicy: IfNotPresent
-  polltimeinterval: 20m
-  age: 7d
-  actions:
-  - name: slack
-    params:
-      token: <token>
-      channel: <channel-name>
+    namespace: default
+    labels:
+      provider: stakater
+      group: com.stakater.platform
+      version: 0.0.3
+    image:
+      name: stakater/jamadar
+      tag: "0.0.3"
+      pullPolicy: IfNotPresent
+    polltimeinterval: 20m
+    age: 7d
+    actions:
+    - name: slack
+      params:
+        token: <token>
+        channel: <channel-name>
 
   configFilePath: /configs/config.yaml
