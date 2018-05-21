@@ -4,7 +4,6 @@ release:
   version: 0.0.4
 configuration:
   jamadar:
-    namespace: stakater
     polltimeinterval: 20m
     age: 7d
     actions:
