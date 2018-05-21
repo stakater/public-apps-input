@@ -1,0 +1,29 @@
+name: Chowkidar
+release:
+  chart: stakater/Chowkidar:0.0.21
+  version: 0.0.21
+configuration:
+  chowkidar:
+    namespace: default
+    labels:
+      provider: stakater
+      group: com.stakater.platform
+      version: 0.0.16
+    image:
+      name: stakater/chowkidar
+      tag: "0.0.16"
+      pullPolicy: IfNotPresent
+    controllers:
+      - type: pods
+        watchCriterion:
+          operator: and
+          identifiers:
+          - "resourceExists"
+          - "healthCheckExists"
+        actions:
+        - name: slack
+          params:
+            token: your-token
+            channel: channel-name
+
+  configFilePath: /configs/config.yaml
