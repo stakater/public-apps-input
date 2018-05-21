@@ -21,4 +21,4 @@ configuration:
         token: <token>
         channel: <channel-name>
 
-  configFilePath: /configs/config.yaml
+    configFilePath: /configs/config.yaml
