@@ -4,15 +4,7 @@ release:
   version: 0.0.21
 configuration:
   chowkidar:
-    namespace: default
-    labels:
-      provider: stakater
-      group: com.stakater.platform
-      version: 0.0.16
-    image:
-      name: stakater/chowkidar
-      tag: "0.0.16"
-      pullPolicy: IfNotPresent
+    namespace: stakater
     controllers:
       - type: pods
         watchCriterion:
