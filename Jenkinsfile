@@ -1,13 +1,6 @@
 #!/usr/bin/groovy
 @Library('github.com/stakater/fabric8-pipeline-library@master')
 
-String outputRepo = "git@github.com:stakater/stackator-infra-apps-output"
-String outputRepoBranch = "master"
-String outputRepoDir = "/home/jenkins/stackator-infra-apps-output"
-
-String outputGitUser = "stakater-user"
-String outputGitEmail = "stakater@gmail.com"
-
 def utils = new io.fabric8.Utils()
 
 toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
@@ -24,6 +17,7 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def slack = new io.stakater.notifications.Slack()
             def landscaper = new io.stakater.charts.Landscaper()
             def helm = new io.stakater.charts.Helm()
+            def common = new io.stakater.Common()
 
             try {
                 stage('Init Helm') {
@@ -32,7 +26,7 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     
                     sh "sleep 30s"
                     
-                    helm.addRepo("chartmuseum", "http://chartmuseum")
+                    helm.addRepo("stakater", "https://stakater.github.io/stakater-charts")
                 }
 
                 stage('Dry Run Charts') {
@@ -45,11 +39,17 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     }
 
                     stage('Save State') {
-                        git.setUserInfo(outputGitUser, outputGitEmail)
-                        git.addHostsToKnownHosts()
-                        git.checkoutRepo(outputRepo, outputRepoBranch, outputRepoDir)
-                        copyNewStateToOutputRepo(workspaceDir, outputRepoDir)
-                        git.commitChanges(outputRepoDir, "Update landscaper state")   
+                        print "Generating New Version"
+                        def versionFile = ".version"
+                        def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+                        sh """
+                            echo "${version}" > ${versionFile}
+                        """ 
+                        git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+
+                        print "Pushing Tag ${version} to Git"
+                        git.createTagAndPush(WORKSPACE, version)
+                        git.createRelease(version)
                     }
                 }
             } catch(e) {
