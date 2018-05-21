@@ -77,10 +77,3 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
         }
     }
 }
-
-def copyNewStateToOutputRepo(String inputRepoDir, String outputRepoDir) {
-    sh """
-        rm -rf ${outputRepoDir}/*
-        cp -r ${inputRepoDir}/manifests/ ${outputRepoDir}/manifests/
-    """
-}
