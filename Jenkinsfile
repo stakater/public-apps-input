@@ -3,7 +3,7 @@
 
 def utils = new io.fabric8.Utils()
 
-toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
+toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String workspaceDir = WORKSPACE
