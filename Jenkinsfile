@@ -12,7 +12,7 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-            
+
             def git = new io.stakater.vc.Git()
             def slack = new io.stakater.notifications.Slack()
             def landscaper = new io.stakater.charts.Landscaper()
@@ -23,9 +23,9 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
                 stage('Init Helm') {
                     // Sleep is needed for the first time because tiller pod might not be ready instantly
                     helm.init(false)
-                    
+
                     sh "sleep 30s"
-                    
+
                     helm.addRepo("stakater", "https://stakater.github.io/stakater-charts")
                 }
 
@@ -38,13 +38,13 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
                         landscaper.apply(manifestsDir, false)
                     }
 
-                    stage('Save State') {
+                    stage('Tag and Release') {
                         print "Generating New Version"
                         def versionFile = ".version"
                         def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
                         sh """
                             echo "${version}" > ${versionFile}
-                        """ 
+                        """
                         git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                         print "Pushing Tag ${version} to Git"
@@ -55,7 +55,7 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
             } catch(e) {
                 //TODO: Extract test result and send in notification
                 slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
-                
+
                 def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                 git.addCommentToPullRequest(commentMessage)
 
@@ -64,8 +64,10 @@ toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
 
             stage('Notify') {
                 def message
+                def versionFile = ".version"
+                def version = common.shOutput("cat ${versionFile}")
                 if (utils.isCD()) {
-                    message = "Deploy successful"
+                    message = "Release stakater-apps ${version}"
                 }
                 else {
                     message = "Dry Run successful"
