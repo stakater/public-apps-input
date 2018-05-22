@@ -4,7 +4,7 @@
 def helmRepoName = "stakater"
 def helmRepoUrl = "https://stakater.github.io/stakater-charts"
 
-applyLandscaperManifest {
+applyLandscaperManifests {
     helmRepoName = helmRepoName
     helmRepoUrl = helmRepoUrl
 }
